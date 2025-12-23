@@ -6,11 +6,14 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "setting_parser.hpp"
 
+/* meteorSetting is defined in setting_parser.hpp
 struct meteorSetting{
     uint16_t port;
     std::vector<std::pair<std::string, std::string>> route; 
 };
+*/
 
 class web_server {
 private:
@@ -18,7 +21,7 @@ private:
     boost::asio::io_context mtrio;
 
 public:
-    web_server();
+    web_server(const std::string& settingPath);
 
 };
 
