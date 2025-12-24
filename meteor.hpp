@@ -11,7 +11,7 @@
 /* meteorSetting is defined in setting_parser.hpp
 struct meteorSetting{
     uint16_t port;
-    std::vector<std::pair<std::string, std::string>> route; 
+    std::vector<std::pair<uint16_t, std::string>> route; 
 };
 */
 

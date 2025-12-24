@@ -10,17 +10,17 @@
 
 struct meteorSetting{
     uint16_t port;
-    std::vector<std::pair<std::string, std::string>> route; 
+    std::vector<std::pair<uint16_t, std::string>> route; 
 };
 
-inline void from_json(const nlohmann::json& jsonInput, std::pair<std::string, std::string>& pairOutput){
-    pairOutput.first = jsonInput.at(0).get<std::string>();
+inline void from_json(const nlohmann::json& jsonInput, std::pair<uint16_t, std::string>& pairOutput){
+    pairOutput.first = jsonInput.at(0).get<uint16_t>();
     pairOutput.second = jsonInput.at(1).get<std::string>();
 }
 
 inline void from_json(const nlohmann::json &jsonInput, meteorSetting& structOutput){
     structOutput.port = jsonInput.at("port").get<uint16_t>();
-    structOutput.route = jsonInput.at("route").get<std::vector<std::pair<std::string, std::string>>>();
+    structOutput.route = jsonInput.at("route").get<std::vector<std::pair<uint16_t, std::string>>>();
 }
 
 inline meteorSetting setting_parser(const std::string& settingPath){
