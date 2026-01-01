@@ -8,6 +8,9 @@
 #include <vector>
 #include "setting_parser.hpp"
 
+namespace asio = boost::asio;
+namespace ip = boost::asio::ip;
+
 /* meteorSetting is defined in setting_parser.hpp
 struct meteorSetting{
     uint16_t port;
@@ -18,11 +21,12 @@ struct meteorSetting{
 class web_server {
 private:
     meteorSetting setting; 
-    boost::asio::io_context mtrio;
-
+    asio::io_context mtrio;
+    ip::tcp::endpoint serverEndPoint;
+    ip::tcp::acceptor acceptor;
 public:
     web_server(const std::string& settingPath);
-
+    
 };
 
 #endif
