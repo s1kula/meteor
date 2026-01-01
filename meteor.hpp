@@ -7,11 +7,12 @@
 #include <utility>
 #include <vector>
 #include "setting_parser.hpp"
+#include "meteor_setting_struct.hpp"
 
 namespace asio = boost::asio;
 namespace ip = boost::asio::ip;
 
-/* meteorSetting is defined in setting_parser.hpp
+/* meteorSetting is defined in meteor_setting_struct.hpp
 struct meteorSetting{
     uint16_t port;
     std::vector<std::pair<uint16_t, std::string>> route; 

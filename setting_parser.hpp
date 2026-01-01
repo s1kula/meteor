@@ -1,17 +1,14 @@
 #ifndef METEOR_SETTING_PARSER
 #define METEOR_SETTING_PARSER
 
+#include "meteor_setting_struct.hpp"
+
 #include <cstdint>
 #include <nlohmann/detail/conversions/from_json.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <nlohmann/json_fwd.hpp>
 #include <utility>
-
-struct meteorSetting{
-    uint16_t port;
-    std::vector<std::pair<uint16_t, std::string>> route; 
-};
 
 inline void from_json(const nlohmann::json& jsonInput, std::pair<uint16_t, std::string>& pairOutput){
     pairOutput.first = jsonInput.at(0).get<uint16_t>();
