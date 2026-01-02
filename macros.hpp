@@ -11,4 +11,9 @@
 #define CONNECT 8
 #define TRACE 9
 
+#define HTTP10 10
+#define HTTP11 11
+#define HTTP2  2
+#define HTTP3  3
+
 #endif
