@@ -7,9 +7,9 @@
 #include <vector>
 
 struct httpData{
-    uint8_t method;
+    uint16_t method;
     std::string path;
-    uint8_t protocol;
+    uint16_t protocol;
     std::vector<std::pair<std::string, std::string>> headers;
     std::vector<std::pair<std::string, std::string>> parameters;
 };
