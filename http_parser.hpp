@@ -15,6 +15,8 @@ void parsing(const std::string& input, httpData* data){
     uint32_t lastSpace = input.find(" ");
     uint32_t nextSpace;
 
+    //parser method
+
     std::string method = input.substr(0, lastSpace);
 
     if(method == "GET"){
@@ -47,6 +49,8 @@ void parsing(const std::string& input, httpData* data){
         data->method = 0;
     }
 
+    //parser path
+
     if ( input.find("?") == std::string::npos || input.find("?", lastSpace) > input.find(" ", lastSpace+1) ){
         nextSpace = input.find(" ", lastSpace+1);
     } else {
@@ -56,7 +60,9 @@ void parsing(const std::string& input, httpData* data){
     std::string path = input.substr(lastSpace + 1, nextSpace - lastSpace - 1);
     data->path = path;
 
-    if (data->method == 1){
+    //parser GET parameters
+
+    if (data->method == GET){
         lastSpace = nextSpace;
         nextSpace = input.find(" ", lastSpace+1);
 
@@ -96,6 +102,8 @@ void parsing(const std::string& input, httpData* data){
         }
     }
     
+    //parser protocol
+
     lastSpace = nextSpace;
     nextSpace = input.find("\r\n", lastSpace);
 
@@ -114,6 +122,8 @@ void parsing(const std::string& input, httpData* data){
         data->protocol = HTTP3;
     }
 
+    //parser header
+
     while (true) {
         lastSpace = nextSpace + 2;
         nextSpace = input.find("\r\n", lastSpace);
@@ -127,6 +137,8 @@ void parsing(const std::string& input, httpData* data){
 
         data->headers[key] = value;
     }
+
+    // parser POST html-form
 }
 
 #endif
