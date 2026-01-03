@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -10,8 +11,8 @@ struct httpData{
     uint16_t method;
     std::string path;
     uint16_t protocol;
-    std::vector<std::pair<std::string, std::string>> headers;
-    std::vector<std::pair<std::string, std::string>> parameters;
+    std::unordered_map<std::string, std::string> headers;
+    std::unordered_map<std::string, std::string> parameters;
 };
 
 #endif
