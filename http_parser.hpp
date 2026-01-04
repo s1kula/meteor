@@ -7,9 +7,46 @@
 #include <ostream>
 #include <string>
 #include <locale>
+#include <iostream>
+#include <unordered_map>
 
 #include "macros.hpp"
 #include "http_data_struct.hpp"
+
+void parameters_parsing(const std::string& parameters, std::unordered_map<std::string, std::string>& output){
+    if(parameters != ""){
+            uint32_t lastSpaceParameters = 0;
+            uint32_t nextSpaceParameters = 0;
+
+            while(true){
+                bool flagBreak;
+
+                nextSpaceParameters = parameters.find("=", lastSpaceParameters); 
+
+                std::string key = parameters.substr(lastSpaceParameters, nextSpaceParameters - lastSpaceParameters);
+
+                if (parameters.find("&", nextSpaceParameters) == std::string::npos){
+                    lastSpaceParameters = nextSpaceParameters;
+                    nextSpaceParameters = parameters.size();
+                    flagBreak = true;
+                } else {
+                    lastSpaceParameters = nextSpaceParameters;
+                    nextSpaceParameters = parameters.find("&", lastSpaceParameters);
+                    flagBreak = false;
+                }
+
+                std::string value = parameters.substr(lastSpaceParameters + 1, nextSpaceParameters - lastSpaceParameters - 1);
+
+                output[key] = value;
+
+                lastSpaceParameters = nextSpaceParameters + 1;
+
+                if (flagBreak){
+                    break;
+                }
+            }
+        }
+}
 
 void parsing(const std::string& input, httpData* data){
     uint32_t lastSpace = input.find(" ");
@@ -66,40 +103,7 @@ void parsing(const std::string& input, httpData* data){
         lastSpace = nextSpace;
         nextSpace = input.find(" ", lastSpace+1);
 
-        std::string parameters = input.substr(lastSpace + 1, nextSpace - lastSpace - 1);
-
-        if(parameters != ""){
-            uint32_t lastSpaceParameters = 0;
-            uint32_t nextSpaceParameters = 0;
-
-            while(true){
-                bool flagBreak;
-
-                nextSpaceParameters = parameters.find("=", lastSpaceParameters); 
-
-                std::string key = parameters.substr(lastSpaceParameters, nextSpaceParameters - lastSpaceParameters);
-
-                if (parameters.find("&", nextSpaceParameters) == std::string::npos){
-                    lastSpaceParameters = nextSpaceParameters;
-                    nextSpaceParameters = parameters.size();
-                    flagBreak = true;
-                } else {
-                    lastSpaceParameters = nextSpaceParameters;
-                    nextSpaceParameters = parameters.find("&", lastSpaceParameters);
-                    flagBreak = false;
-                }
-
-                std::string value = parameters.substr(lastSpaceParameters + 1, nextSpaceParameters - lastSpaceParameters - 1);
-
-                data->parameters[key] = value;
-
-                lastSpaceParameters = nextSpaceParameters + 1;
-
-                if (flagBreak){
-                    break;
-                }
-            }
-        }
+        parameters_parsing(input.substr(lastSpace + 1, nextSpace - lastSpace - 1), data->parameters);
     }
     
     //parser protocol
@@ -139,6 +143,12 @@ void parsing(const std::string& input, httpData* data){
     }
 
     // parser POST html-form
+
+    if (data->method == POST && data->headers["Content-Type"] == "application/x-www-form-urlencoded"){
+        lastSpace = nextSpace+2;
+        nextSpace = input.find("\r\n", lastSpace);
+        parameters_parsing(input.substr(lastSpace, nextSpace-lastSpace), data->parameters);
+    }
 }
 
 #endif
