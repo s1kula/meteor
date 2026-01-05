@@ -4,8 +4,14 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-#include <utility>
-#include <vector>
+
+struct file {
+    std::string contentDisposition; 
+    std::string name; 
+    std::string filename;
+    std::string contentType;
+    std::string binary;
+};
 
 struct httpData{
     uint16_t method;
@@ -13,6 +19,7 @@ struct httpData{
     uint16_t protocol;
     std::unordered_map<std::string, std::string> headers;
     std::unordered_map<std::string, std::string> parameters;
+    std::unordered_map<std::string, file> files;
 };
 
 #endif
