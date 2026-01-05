@@ -1,13 +1,9 @@
 #ifndef METEOR_HTTP_PARSER
 #define METEOR_HTTP_PARSER
 
-#include <algorithm>
-#include <cctype>
 #include <cstdint>
-#include <ostream>
+#include <iterator>
 #include <string>
-#include <locale>
-#include <iostream>
 #include <unordered_map>
 
 #include "macros.hpp"
@@ -148,6 +144,95 @@ void parsing(const std::string& input, httpData* data){
         lastSpace = nextSpace+2;
         nextSpace = input.find("\r\n", lastSpace);
         parameters_parsing(input.substr(lastSpace, nextSpace-lastSpace), data->parameters);
+    }
+
+    if (data->method == POST && data->headers["Content-Type"].find("multipart/form-data") != std::string::npos){
+
+        uint16_t lastSpaceBoundary = input.find("boundary=") + std::size("boundary=") - 1;
+        uint16_t nextSpaceBoundary = input.find("\r\n", lastSpaceBoundary);
+
+        std::string boundary = input.substr(lastSpaceBoundary , nextSpaceBoundary - lastSpaceBoundary);
+        
+        uint16_t sizeBoundary = boundary.size();
+
+        while(true){
+            lastSpace = input.find(boundary, nextSpace);
+            nextSpace = input.find(boundary, lastSpace + 1);
+            std::string formPart = input.substr(lastSpace, nextSpace-lastSpace);
+
+            lastSpaceBoundary = 0;
+            nextSpaceBoundary = 0;
+
+            if (formPart == boundary + "\r\n" || formPart == boundary){
+                break;
+            }
+
+            if (formPart.find("filename=\"") == std::string::npos){
+                std::string findString = "name=\"";
+            
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.find("\"", lastSpaceBoundary);
+
+                std::string key = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                lastSpaceBoundary = nextSpaceBoundary + std::size("\r\n\r\n");
+                nextSpaceBoundary = formPart.find("\r\n", lastSpaceBoundary);
+
+                std::string value = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                data->parameters[key] = value;
+            } else {
+
+                std::string findString = "Content-Disposition: ";
+
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.find(";", lastSpaceBoundary);
+
+                std::string ContentDisposition = formPart.substr(lastSpaceBoundary, nextSpaceBoundary-lastSpaceBoundary);
+
+
+                findString = "name=\"";
+                
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.find("\"", lastSpaceBoundary);
+
+                std::string name = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                data->files[name].name = name;
+                data->files[name].contentDisposition = ContentDisposition;
+
+
+                findString = "filename=\"";
+
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.find("\"", lastSpaceBoundary);
+
+                std::string filename = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                data->files[name].filename = filename;
+
+
+                findString = "Content-Type: ";
+
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.find("\r\n", lastSpaceBoundary);
+
+                std::string contentType = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                data->files[name].contentType = contentType;
+
+
+                findString = "\r\n\r\n";
+
+                lastSpaceBoundary = formPart.find(findString, nextSpaceBoundary) + findString.size();
+                nextSpaceBoundary = formPart.rfind("\r\n");
+
+
+                std::string binary = formPart.substr(lastSpaceBoundary, nextSpaceBoundary - lastSpaceBoundary);
+
+                data->files[name].binary = binary;
+            }  
+        }
     }
 }
 
